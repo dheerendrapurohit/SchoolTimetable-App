@@ -1,0 +1,10 @@
+[{"id":1,"name":"T1","availablePeriods":["P4","P5","P6","P7"],"subjects":["English"]},
+  {"id":2,"name":"T2","availablePeriods":["P1","P2","P3","P4"],"subjects":["Mathematics"]},
+  {"id":3,"name":"T3","availablePeriods":["P4","P5","P6","P7"],"subjects":["Science"]},
+  {"id":4,"name":"T4","availablePeriods":["P1","P2","P3","P4"],"subjects":["Mathematics","Science"]},
+  {"id":5,"name":"T5","availablePeriods":["P4","P5","P6","P7"],"subjects":["Kannada"]},
+  {"id":6,"name":"T6","availablePeriods":["P1","P2","P3","P4"],"subjects":["Kannada","SocialStudies"]},
+  {"id":7,"name":"T7","availablePeriods":["P4","P5","P6","P7"],"subjects":["SocialStudies"]},
+  {"id":8,"name":"T8","availablePeriods":["P1","P2","P3","P4"],"subjects":["Yoga"]},
+  {"id":9,"name":"T9","availablePeriods":["P4","P5","P6","P7"],"subjects":["English"]},
+  {"id":10,"name":"T10","availablePeriods":["P1","P2","P3","P4"],"subjects":["Mathematics"]}]
