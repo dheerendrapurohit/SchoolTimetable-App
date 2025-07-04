@@ -16714,3 +16714,27 @@ java.io.EOFException: null
 2025-07-04 18:39:50 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
 2025-07-04 18:40:30 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634630905 sessioncount 0
 2025-07-04 18:40:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 276 expired sessions: 0
+2025-07-04 18:40:50 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634650826 sessioncount 0
+2025-07-04 18:40:50 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:41:31 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634691262 sessioncount 0
+2025-07-04 18:41:31 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 40 expired sessions: 0
+2025-07-04 18:41:50 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634710875 sessioncount 0
+2025-07-04 18:41:50 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:42:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634751360 sessioncount 0
+2025-07-04 18:42:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:42:50 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634770941 sessioncount 0
+2025-07-04 18:42:50 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:43:31 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634811464 sessioncount 0
+2025-07-04 18:43:31 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:43:50 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634830977 sessioncount 0
+2025-07-04 18:43:50 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:44:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634871528 sessioncount 0
+2025-07-04 18:44:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:44:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634891027 sessioncount 0
+2025-07-04 18:44:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:45:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634931595 sessioncount 0
+2025-07-04 18:45:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:45:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634951133 sessioncount 0
+2025-07-04 18:45:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:46:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634991695 sessioncount 0
+2025-07-04 18:46:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 64 expired sessions: 0
