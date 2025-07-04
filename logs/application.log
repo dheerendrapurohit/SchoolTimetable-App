@@ -16738,3 +16738,138 @@ java.io.EOFException: null
 2025-07-04 18:45:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
 2025-07-04 18:46:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751634991695 sessioncount 0
 2025-07-04 18:46:31 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 64 expired sessions: 0
+2025-07-04 18:46:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635011173 sessioncount 0
+2025-07-04 18:46:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 2 expired sessions: 0
+2025-07-04 18:47:31 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635051809 sessioncount 0
+2025-07-04 18:47:31 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:47:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635071222 sessioncount 0
+2025-07-04 18:47:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:48:32 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635111851 sessioncount 0
+2025-07-04 18:48:32 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 910 expired sessions: 0
+2025-07-04 18:48:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635131355 sessioncount 0
+2025-07-04 18:48:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:49:32 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635172821 sessioncount 0
+2025-07-04 18:49:32 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:49:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635191412 sessioncount 0
+2025-07-04 18:49:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 42 expired sessions: 0
+2025-07-04 18:50:30 DEBUG [http-nio-8082-Acceptor] o.a.tomcat.util.threads.LimitLatch - Counting up[http-nio-8082-Acceptor] latch=1
+2025-07-04 18:50:31 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11NioProtocol - Processing socket [org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]] with status [OPEN_READ]
+2025-07-04 18:50:31 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11NioProtocol - Found processor [null] for socket [org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]]
+2025-07-04 18:50:31 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11NioProtocol - Popped processor [org.apache.coyote.http11.Http11Processor@44bd4e57] from cache
+2025-07-04 18:50:31 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11InputBuffer - Before fill(): parsingHeader: [true], parsingRequestLine: [true], parsingRequestLinePhase: [0], parsingRequestLineStart: [0], byteBuffer.position(): [0], byteBuffer.limit(): [0], end: [607]
+2025-07-04 18:50:31 DEBUG [http-nio-8082-exec-3] o.a.t.util.net.SocketWrapperBase - Socket: [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]], Read from buffer: [0]
+2025-07-04 18:50:32 DEBUG [http-nio-8082-exec-3] o.apache.tomcat.util.net.NioEndpoint - Socket: [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]], Read direct from socket: [607]
+2025-07-04 18:50:32 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11InputBuffer - Received [GET /api/timetable HTTP/1.1
+Host: localhost:8082
+Connection: keep-alive
+sec-ch-ua-platform: "Windows"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+Accept: application/json, text/plain, */*
+sec-ch-ua: "Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"
+sec-ch-ua-mobile: ?0
+Origin: http://localhost:3000
+Sec-Fetch-Site: same-site
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: http://localhost:3000/
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,kn;q=0.7
+
+]
+2025-07-04 18:50:32 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635232914 sessioncount 0
+2025-07-04 18:50:32 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 67 expired sessions: 0
+2025-07-04 18:50:33 DEBUG [http-nio-8082-exec-3] o.a.c.a.AuthenticatorBase - Security checking request GET /api/timetable
+2025-07-04 18:50:33 DEBUG [http-nio-8082-exec-3] org.apache.catalina.realm.RealmBase -   No applicable constraints defined
+2025-07-04 18:50:33 DEBUG [http-nio-8082-exec-3] o.a.c.a.AuthenticatorBase - Not subject to any constraint
+2025-07-04 18:50:36 DEBUG [http-nio-8082-exec-3] o.apache.tomcat.util.http.Parameters - Set encoding to UTF-8
+2025-07-04 18:50:37 DEBUG [http-nio-8082-exec-3] o.s.web.servlet.DispatcherServlet - GET "/api/timetable", parameters={}
+2025-07-04 18:50:41 DEBUG [http-nio-8082-exec-3] o.s.w.s.m.m.a.RequestMappingHandlerMapping - Mapped to com.example.school.controller.TimetableController#getThisWeek()
+2025-07-04 18:50:47 DEBUG [http-nio-8082-exec-3] o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Using 'application/json', given [application/json, text/plain, */*] and supported [application/json, application/*+json]
+2025-07-04 18:50:48 DEBUG [http-nio-8082-exec-3] o.s.w.s.m.m.a.RequestResponseBodyMethodProcessor - Writing [[TimetableEntry(id=1, date=2025-06-30, day=MONDAY, period=com.example.school.entity.Period@7716ad9,  (truncated)...]
+2025-07-04 18:50:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635251519 sessioncount 0
+2025-07-04 18:50:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:50:58 DEBUG [http-nio-8082-exec-3] o.s.web.servlet.DispatcherServlet - Completed 200 OK
+2025-07-04 18:51:00 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11InputBuffer - Before fill(): parsingHeader: [true], parsingRequestLine: [true], parsingRequestLinePhase: [0], parsingRequestLineStart: [0], byteBuffer.position(): [0], byteBuffer.limit(): [0], end: [607]
+2025-07-04 18:51:00 DEBUG [http-nio-8082-exec-3] o.a.t.util.net.SocketWrapperBase - Socket: [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]], Read from buffer: [0]
+2025-07-04 18:51:00 DEBUG [http-nio-8082-exec-3] o.apache.tomcat.util.net.NioEndpoint - Socket: [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]], Read direct from socket: [0]
+2025-07-04 18:51:00 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11InputBuffer - Received []
+2025-07-04 18:51:00 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11Processor - Socket: [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]], Status in: [OPEN_READ], State out: [OPEN]
+2025-07-04 18:51:00 DEBUG [http-nio-8082-exec-3] o.a.coyote.http11.Http11NioProtocol - Pushed Processor [org.apache.coyote.http11.Http11Processor@44bd4e57]
+2025-07-04 18:51:01 DEBUG [http-nio-8082-exec-3] o.apache.tomcat.util.net.NioEndpoint - Registered read interest for [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]]
+2025-07-04 18:51:04 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11NioProtocol - Processing socket [org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]] with status [OPEN_READ]
+2025-07-04 18:51:04 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11NioProtocol - Found processor [null] for socket [org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]]
+2025-07-04 18:51:04 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11NioProtocol - Popped processor [org.apache.coyote.http11.Http11Processor@44bd4e57] from cache
+2025-07-04 18:51:04 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11InputBuffer - Before fill(): parsingHeader: [true], parsingRequestLine: [true], parsingRequestLinePhase: [0], parsingRequestLineStart: [0], byteBuffer.position(): [0], byteBuffer.limit(): [0], end: [607]
+2025-07-04 18:51:04 DEBUG [http-nio-8082-exec-2] o.a.t.util.net.SocketWrapperBase - Socket: [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]], Read from buffer: [0]
+2025-07-04 18:51:06 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11Processor - Error parsing HTTP request header
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1297)
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1184)
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:785)
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:348)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:263)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:894)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1575)
+2025-07-04 18:51:08 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11Processor - Error state [CLOSE_CONNECTION_NOW] reported while processing request
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1297)
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1184)
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:785)
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:348)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:263)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:894)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.base/java.lang.Thread.run(Thread.java:1575)
+2025-07-04 18:51:08 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11Processor - Socket: [org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]], Status in: [OPEN_READ], State out: [CLOSED]
+2025-07-04 18:51:08 DEBUG [http-nio-8082-exec-2] o.a.coyote.http11.Http11NioProtocol - Pushed Processor [org.apache.coyote.http11.Http11Processor@44bd4e57]
+2025-07-04 18:51:09 DEBUG [http-nio-8082-exec-2] o.a.tomcat.util.threads.LimitLatch - Counting down[http-nio-8082-exec-2] latch=1
+2025-07-04 18:51:09 DEBUG [http-nio-8082-exec-2] o.apache.tomcat.util.net.NioEndpoint - Calling [org.apache.tomcat.util.net.NioEndpoint@61d76f06].closeSocket([org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper@ad40889:org.apache.tomcat.util.net.NioChannel@57066fa9:java.nio.channels.SocketChannel[connected local=/[0:0:0:0:0:0:0:1]:8082 remote=/[0:0:0:0:0:0:0:1]:62287]])
+2025-07-04 18:51:33 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635293115 sessioncount 0
+2025-07-04 18:51:33 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 14 expired sessions: 0
+2025-07-04 18:51:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635311562 sessioncount 0
+2025-07-04 18:51:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 8 expired sessions: 0
+2025-07-04 18:52:33 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635353180 sessioncount 0
+2025-07-04 18:52:33 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:52:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635371653 sessioncount 0
+2025-07-04 18:52:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:53:33 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635413297 sessioncount 0
+2025-07-04 18:53:33 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 425 expired sessions: 0
+2025-07-04 18:53:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635431714 sessioncount 0
+2025-07-04 18:53:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:54:33 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635473845 sessioncount 0
+2025-07-04 18:54:33 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:54:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635491753 sessioncount 0
+2025-07-04 18:54:51 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:55:33 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635533899 sessioncount 0
+2025-07-04 18:55:33 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:55:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635551789 sessioncount 0
+2025-07-04 18:55:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:56:33 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635593985 sessioncount 0
+2025-07-04 18:56:34 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 0 expired sessions: 0
+2025-07-04 18:56:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635611844 sessioncount 0
+2025-07-04 18:56:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 2 expired sessions: 0
+2025-07-04 18:57:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635654098 sessioncount 0
+2025-07-04 18:57:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 38 expired sessions: 0
+2025-07-04 18:57:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635671902 sessioncount 0
+2025-07-04 18:57:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:58:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635714279 sessioncount 0
+2025-07-04 18:58:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:58:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635731942 sessioncount 0
+2025-07-04 18:58:51 DEBUG [Catalina-utility-1] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 18:59:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635774418 sessioncount 0
+2025-07-04 18:59:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 157 expired sessions: 0
+2025-07-04 18:59:52 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635792045 sessioncount 0
+2025-07-04 18:59:52 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 1 expired sessions: 0
+2025-07-04 19:00:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - Start expire sessions StandardManager at 1751635834625 sessioncount 0
+2025-07-04 19:00:34 DEBUG [Catalina-utility-2] o.a.catalina.session.ManagerBase - End expire sessions StandardManager processingTime 42 expired sessions: 0
