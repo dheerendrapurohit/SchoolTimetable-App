@@ -12,8 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
@@ -65,9 +69,45 @@ public class TimetableService {
         // Save to JSON
         repository.saveAll(weeklyEntries);
 
+
         // Export to Excel
         exportToExcel(weeklyEntries, monday);
     }
+
+    public void generateTimetableBetweenDates(LocalDate startDate, LocalDate endDate) {
+        repository.clear(); // Clear existing timetable
+
+        List<TimetableEntry> allEntries = new ArrayList<>();
+
+        LocalDate current = startDate;
+        while (!current.isAfter(endDate)) {
+            if (current.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                List<TimetableEntry> dailyEntries = generateTimetableForDate(current);
+                allEntries.addAll(dailyEntries);
+            }
+            current = current.plusDays(1);
+        }
+
+        repository.saveAll(allEntries);
+        exportToExcel(allEntries, startDate);
+    }
+
+    public void generateTimetableForSingleDay(LocalDate date) {
+        System.out.println("Generating timetable for: " + date);
+
+        if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            System.out.println("Skipping Sunday.");
+            return;
+        }
+
+        List<TimetableEntry> entries = generateTimetableForDate(date);
+        repository.saveAll(entries);
+        exportToExcel(entries, date);
+
+        System.out.println("Timetable generated and saved for: " + date);
+    }
+
+
 
 
     // Extracted logic to generate one day's timetable
@@ -81,8 +121,8 @@ public class TimetableService {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         int periodLimit = (dayOfWeek == DayOfWeek.SATURDAY) ? 4 : 7;
 
+        Set<String> yogaAssignedClassrooms = new HashSet<>();
         for (Classroom classroom : classrooms) {
-            Set<String> yogaAssignedClassrooms = new HashSet<>();
             Map<String, Integer> subjectCount = new HashMap<>();
             Set<String> uniqueSubjectsToday = new HashSet<>();
 
@@ -134,8 +174,13 @@ public class TimetableService {
                 return subject;
             }
 
-            if (uniqueSubjectsToday.size() >= 3) continue;
-            if (subjectCount.getOrDefault(name, 0) < 5) return subject;
+            if (uniqueSubjectsToday.size() >= 4 && !uniqueSubjectsToday.contains(name)) {
+                continue;
+            }
+
+            if (subjectCount.getOrDefault(name, 0) < 5) {
+                return subject;
+            }
         }
 
         return null;
@@ -187,6 +232,47 @@ public class TimetableService {
 
         repository.saveAll(allEntries);
     }
+
+    public void handleHalfDayTeacherAbsence(String teacherName, LocalDate date, String half) {
+        List<TimetableEntry> allEntries = repository.findAll();
+        List<Teacher> teachers = teacherRepository.findAll();
+
+        // Define period ranges
+        Set<String> affectedPeriods = new HashSet<>();
+        if (half.equalsIgnoreCase("AM")) {
+            affectedPeriods.addAll(Arrays.asList("P1", "P2", "P3"));
+        } else if (half.equalsIgnoreCase("PM")) {
+            affectedPeriods.addAll(Arrays.asList("P4", "P5", "P6", "P7")); // Adjust for Saturday if needed
+        } else {
+            logger.warn("Invalid half-day specifier: {}", half);
+            return;
+        }
+
+        for (TimetableEntry entry : allEntries) {
+            if (entry.getTeacher().getName().equalsIgnoreCase(teacherName)
+                    && entry.getDate().equals(date)
+                    && affectedPeriods.contains(entry.getPeriod().getName())) {
+
+                String subject = entry.getSubject().getName();
+                String period = entry.getPeriod().getName();
+
+                Teacher substitute = findAvailableTeacher(teachers, subject, period);
+                if (substitute != null) {
+                    entry.setTeacher(substitute);
+                    logger.info("Substituted teacher '{}' with '{}' for period '{}' on {}",
+                            teacherName, substitute.getName(), period, date);
+                } else {
+                    entry.setTeacher(null);
+                    logger.warn("No substitute available for teacher '{}' on period '{}' for {}",
+                            teacherName, period, date);
+                }
+            }
+        }
+
+        repository.saveAll(allEntries);
+    }
+
+
     public void exportToExcel(List<TimetableEntry> entries, LocalDate monday) {
         String fileName = "timetable_" + monday + ".xlsx";
         File exportDir = new File("exports");
@@ -206,8 +292,8 @@ public class TimetableService {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Timetable");
 
-            Row header = sheet.createRow(0);
             String[] columns = {"Date", "Day", "Classroom", "Period", "Subject", "Teacher"};
+            Row header = sheet.createRow(0);
             for (int i = 0; i < columns.length; i++) {
                 header.createCell(i).setCellValue(columns[i]);
             }
@@ -223,18 +309,20 @@ public class TimetableService {
                 row.createCell(5).setCellValue(entry.getTeacher().getName());
             }
 
+            //  Auto-size columns after data is written
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 workbook.write(fos);
             }
 
-            logger.info("Exported timetable to Excel: {}", file.getAbsolutePath());
+            logger.info(" Exported timetable to Excel: {}", file.getAbsolutePath());
         } catch (IOException e) {
-            logger.error("Failed to export Excel", e);
+            logger.error(" Failed to export Excel", e);
         }
     }
 
-
-
-
-
+    
 }

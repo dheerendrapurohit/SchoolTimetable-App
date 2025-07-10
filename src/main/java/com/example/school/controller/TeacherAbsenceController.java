@@ -1,12 +1,13 @@
 package com.example.school.controller;
 
 import com.example.school.entity.TeacherAbsence;
+import com.example.school.entity.TeacherHalfDayLeave;
 import com.example.school.repository.json.TeacherAbsenceJsonRepository;
+import com.example.school.repository.json.TeacherHalfDayLeaveJsonRepository;
 import com.example.school.service.TimetableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -20,22 +21,45 @@ public class TeacherAbsenceController {
     private TeacherAbsenceJsonRepository absenceRepo;
 
     @Autowired
+    private TeacherHalfDayLeaveJsonRepository halfDayRepo;
+
+    @Autowired
     private TimetableService timetableService;
 
+    // ✅ Full-day absence
     @PostMapping("/mark")
     public String markTeacherAbsent(@RequestBody TeacherAbsence absence) {
-        // Ensure day is derived from date
         absence.setDay(absence.getDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH));
-
         absenceRepo.save(absence);
+
         timetableService.handleTeacherAbsence(absence.getName(), absence.getDate());
 
-        return "Marked " + absence.getName() + " absent for " + absence.getDate() + " and reassigned classes.";
+        return "✅ Marked " + absence.getName() + " absent for full day: " + absence.getDate() + ". Reassigned classes.";
     }
 
+    // ✅ Half-day absence
+    @PostMapping("/halfday")
+    public String markHalfDayAbsent(@RequestBody TeacherHalfDayLeave leave) {
+        String session = leave.getSession().toUpperCase();
+        if (!session.equals("AM") && !session.equals("PM")) {
+            return "❌ Invalid session. Use 'AM' or 'PM'.";
+        }
 
+        halfDayRepo.save(leave);
+        timetableService.handleHalfDayTeacherAbsence(leave.getName(), leave.getDate(), session);
+
+        return "✅ Marked " + leave.getName() + " absent for " + session + " on " + leave.getDate() + ". Reassigned classes.";
+    }
+
+    // ✅ All full-day absences
     @GetMapping
     public List<TeacherAbsence> getAllAbsences() {
         return absenceRepo.findAll();
+    }
+
+    // ✅ All half-day absences
+    @GetMapping("/halfday")
+    public List<TeacherHalfDayLeave> getAllHalfDayLeaves() {
+        return halfDayRepo.findAll();
     }
 }

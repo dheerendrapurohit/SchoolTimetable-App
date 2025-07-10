@@ -5,6 +5,7 @@ import com.example.school.repository.json.TimetableEntryJsonRepository;
 import com.example.school.service.TimetableService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class TimetableController {
         this.timetableService = timetableService;
     }
 
-    //  Return only entries for the current week (Monday to Sunday)
+    //  Return entries for the current week (Monday to Sunday)
     @GetMapping
     public List<TimetableEntry> getThisWeek() {
         LocalDate today = LocalDate.now();
@@ -47,11 +48,54 @@ public class TimetableController {
                 .collect(Collectors.toList());
     }
 
-    //  Generate timetable for this week
+    //  Generate timetable for the current week
     @PostMapping("/generate")
     public String generateWeek() {
         timetableService.generateTimetableForWeek();
         return "Timetable generated for the week.";
+    }
+
+    //  Return current week's timetable filtered by class name
+    @GetMapping("/week/class/{className}")
+    public List<TimetableEntry> getThisWeekByClass(@PathVariable String className) {
+        LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
+        LocalDate saturday = monday.plusDays(5); // Exclude Sunday
+
+        return repo.findAll().stream()
+                .filter(e -> e.getDate() != null &&
+                        !e.getDate().isBefore(monday) &&
+                        !e.getDate().isAfter(saturday) &&
+                        e.getClassroom() != null &&
+                        className.equalsIgnoreCase(e.getClassroom().getName()))
+                .collect(Collectors.toList());
+    }
+
+
+    //  NEW: Generate timetable between two dates (excluding Sundays)
+    @PostMapping("/generate-between")
+    public ResponseEntity<String> generateBetweenDates(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        if (startDate.isAfter(endDate)) {
+            return ResponseEntity.badRequest().body("Start date must be before or equal to end date.");
+        }
+
+        timetableService.generateTimetableBetweenDates(startDate, endDate);
+        return ResponseEntity.ok("Timetable generated from " + startDate + " to " + endDate + ".");
+    }
+
+    @PostMapping("/generate-day")
+    public ResponseEntity<String> generateTimetableForDay(@RequestParam String date) {
+        System.out.println("🔍 Received request to generate timetable for: " + date);
+        try {
+            LocalDate targetDate = LocalDate.parse(date);
+            timetableService.generateTimetableForSingleDay(targetDate);
+            return ResponseEntity.ok(" Timetable generated for " + targetDate);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the full error in the console
+            return ResponseEntity.status(500).body(" Error generating timetable: " + e.getMessage());
+        }
     }
 
 
@@ -80,11 +124,11 @@ public class TimetableController {
     public List<TimetableEntry> getByDate(@PathVariable String date) {
         LocalDate localDate = LocalDate.parse(date);
         return repo.findAll().stream()
-                .filter(e -> e.getDate() != null &&
-                        e.getDate().equals(localDate))
+                .filter(e -> e.getDate() != null && e.getDate().equals(localDate))
                 .collect(Collectors.toList());
     }
 
+    //  Filter by day name
     @GetMapping("/day/{day}")
     public List<TimetableEntry> getByDay(@PathVariable String day) {
         return repo.findAll().stream()
@@ -93,7 +137,7 @@ public class TimetableController {
                 .collect(Collectors.toList());
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+    //  Download latest exported Excel timetable
     @GetMapping("/download-latest-excel")
     public ResponseEntity<Resource> downloadLatestExcel() throws IOException {
         File exportDir = new File("exports");
@@ -101,7 +145,6 @@ public class TimetableController {
             return ResponseEntity.notFound().build();
         }
 
-        // Find the latest file
         File[] files = exportDir.listFiles((dir, name) -> name.endsWith(".xlsx"));
         if (files == null || files.length == 0) {
             return ResponseEntity.notFound().build();
@@ -117,9 +160,5 @@ public class TimetableController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }
-
-
-
-
 
 }

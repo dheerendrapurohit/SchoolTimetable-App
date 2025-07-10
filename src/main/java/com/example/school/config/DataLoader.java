@@ -123,8 +123,8 @@ public class DataLoader {
             t.setName("T" + (i + 1));
 
             List<String> periods = (i % 2 == 0)
-                    ? List.of("P4", "P5", "P6", "P7")
-                    : List.of("P1", "P2", "P3", "P4");
+                    ? List.of("P1", "P2", "P3", "P4")
+                    : List.of("P1","P4", "P5", "P6", "P7");
             t.setAvailablePeriods(periods);
             t.setSubjects(Arrays.asList(teacherSubjects[i]));
             teacherRepository.save(t);
@@ -141,54 +141,82 @@ public class DataLoader {
         List<Classroom> classrooms = classroomRepository.findAll();
         List<Period> periods = periodRepository.findAll();
 
-        Map<String, Integer> yogaCount = new HashMap<>();
+        Map<String, Boolean> yogaAssigned = new HashMap<>(); // track Yoga per class
         Random random = new Random();
-
         LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
 
         for (Classroom classroom : classrooms) {
-            Map<LocalDate, List<Subject>> dailySubjectMap = new HashMap<>();
+            yogaAssigned.put(classroom.getName(), false);
 
-            // Monday to Friday
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 6; i++) {
                 LocalDate date = monday.plusDays(i);
-                for (Period period : periods) {
-                    dailySubjectMap.putIfAbsent(date, new ArrayList<>());
-                    List<Subject> usedSubjects = dailySubjectMap.get(date);
+                DayOfWeek day = date.getDayOfWeek();
+                boolean isSaturday = day == DayOfWeek.SATURDAY;
+                List<Period> todaysPeriods = isSaturday
+                        ? periods.stream().filter(p -> p.getName().matches("P[1-4]")).toList()
+                        : periods;
 
-                    Subject subject;
-                    if (!yogaCount.containsKey(classroom.getName())) {
+                Set<String> uniqueSubjectsUsed = new HashSet<>();
+                Map<String, Integer> subjectUsageCount = new HashMap<>();
+
+                for (Period period : todaysPeriods) {
+                    Subject subject = null;
+
+                    // Try assigning Yoga if not already assigned for this class
+                    if (!yogaAssigned.get(classroom.getName())
+                            && !uniqueSubjectsUsed.contains("Yoga")
+                            && subjectUsageCount.getOrDefault("Yoga", 0) == 0
+                            && uniqueSubjectsUsed.size() < 3) {
+
                         subject = subjects.stream()
                                 .filter(s -> s.getName().equalsIgnoreCase("Yoga"))
-                                .findFirst()
-                                .orElse(null);
-                        if (subject == null) continue;
-                        yogaCount.put(classroom.getName(), 1);
-                        usedSubjects.add(subject);
-                    } else if (usedSubjects.size() >= 3) {
-                        subject = usedSubjects.get(random.nextInt(usedSubjects.size()));
-                    } else {
+                                .findFirst().orElse(null);
+
+                        if (subject != null) {
+                            yogaAssigned.put(classroom.getName(), true);
+                            uniqueSubjectsUsed.add("Yoga");
+                            subjectUsageCount.put("Yoga", 1);
+                        }
+                    }
+
+                    // If Yoga not assigned or skipped, pick a subject under limits
+                    if (subject == null) {
                         List<Subject> availableSubjects = subjects.stream()
-                                .filter(s -> !usedSubjects.contains(s))
-                                .filter(s -> !s.getName().equalsIgnoreCase("Yoga"))
+                                .filter(s -> {
+                                    int count = subjectUsageCount.getOrDefault(s.getName(), 0);
+                                    return count < 3;
+                                })
+                                .filter(s -> {
+                                    if (uniqueSubjectsUsed.size() < 3) return true;
+                                    return uniqueSubjectsUsed.contains(s.getName());
+                                })
+                                .filter(s -> !s.getName().equalsIgnoreCase("Yoga")
+                                        || (!yogaAssigned.get(classroom.getName())
+                                        && !uniqueSubjectsUsed.contains("Yoga")
+                                        && subjectUsageCount.getOrDefault("Yoga", 0) == 0))
                                 .toList();
 
                         if (availableSubjects.isEmpty()) continue;
+
                         subject = availableSubjects.get(random.nextInt(availableSubjects.size()));
-                        usedSubjects.add(subject);
+                        subjectUsageCount.put(subject.getName(), subjectUsageCount.getOrDefault(subject.getName(), 0) + 1);
+                        uniqueSubjectsUsed.add(subject.getName());
                     }
 
+                    // Get applicable teachers
+                    Subject finalSubject = subject;
                     List<Teacher> applicableTeachers = teachers.stream()
-                            .filter(t -> t.getSubjects().contains(subject.getName()))
-                            .filter(t -> isTeacherAvailableForPeriod(t, period))
+                            .filter(t -> t.getSubjects().contains(finalSubject.getName()))
+                            .filter(t -> t.getAvailablePeriods().contains(period.getName()))
                             .toList();
 
                     if (applicableTeachers.isEmpty()) continue;
+
                     Teacher teacher = applicableTeachers.get(random.nextInt(applicableTeachers.size()));
 
                     TimetableEntry entry = new TimetableEntry();
                     entry.setDate(date);
-                    entry.setDay(date.getDayOfWeek().toString()); // <-- Added day
+                    entry.setDay(day.toString());
                     entry.setClassroom(classroom);
                     entry.setPeriod(period);
                     entry.setSubject(subject);
@@ -197,56 +225,17 @@ public class DataLoader {
                     timetableEntryRepository.save(entry);
                 }
             }
-
-            // Saturday (4 periods)
-            LocalDate saturday = monday.plusDays(5);
-            for (Period period : periods.stream().filter(p -> p.getName().matches("P[1-4]")).toList()) {
-                dailySubjectMap.putIfAbsent(saturday, new ArrayList<>());
-                List<Subject> usedSubjects = dailySubjectMap.get(saturday);
-
-                Subject subject;
-                if (usedSubjects.size() >= 3) {
-                    subject = usedSubjects.get(random.nextInt(usedSubjects.size()));
-                } else {
-                    List<Subject> availableSubjects = subjects.stream()
-                            .filter(s -> !usedSubjects.contains(s))
-                            .filter(s -> !s.getName().equalsIgnoreCase("Yoga"))
-                            .toList();
-
-                    if (availableSubjects.isEmpty()) continue;
-                    subject = availableSubjects.get(random.nextInt(availableSubjects.size()));
-                    usedSubjects.add(subject);
-                }
-
-                List<Teacher> applicableTeachers = teachers.stream()
-                        .filter(t -> t.getSubjects().contains(subject.getName()))
-                        .filter(t -> isTeacherAvailableForPeriod(t, period))
-                        .toList();
-
-                if (applicableTeachers.isEmpty()) continue;
-                Teacher teacher = applicableTeachers.get(random.nextInt(applicableTeachers.size()));
-
-                TimetableEntry entry = new TimetableEntry();
-                entry.setDate(saturday);
-                entry.setDay(saturday.getDayOfWeek().toString()); // <-- Added day
-                entry.setClassroom(classroom);
-                entry.setPeriod(period);
-                entry.setSubject(subject);
-                entry.setTeacher(teacher);
-
-                timetableEntryRepository.save(entry);
-            }
         }
 
-        logger.info("Sample timetable entries loaded.");
+        logger.info("Strict, fully-populated sample timetable loaded.");
     }
 
-    private boolean isTeacherAvailableForPeriod(Teacher teacher, Period period) {
-        int periodNumber = Integer.parseInt(period.getName().substring(1));
-        boolean isOddTeacher = Integer.parseInt(teacher.getName().substring(1)) % 2 != 0;
 
-        return isOddTeacher
-                ? (periodNumber >= 1 && periodNumber <= 4)
-                : (periodNumber >= 4 && periodNumber <= 7);
+
+
+
+
+    private boolean isTeacherAvailableForPeriod(Teacher teacher, Period period) {
+        return teacher.getAvailablePeriods().contains(period.getName());
     }
 }
