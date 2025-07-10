@@ -1,0 +1,56 @@
+package com.example.school.controller;
+
+import com.example.school.entity.Teacher;
+import com.example.school.repository.json.TeacherJsonRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/teachers")
+public class TeacherController {
+
+    private final TeacherJsonRepository repo;
+
+    public TeacherController(TeacherJsonRepository repo) {
+        this.repo = repo;
+    }
+
+    @GetMapping
+    public List<Teacher> getAll() {
+        return repo.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Teacher> getById(@PathVariable Long id) {
+        Teacher teacher = repo.findById(id);
+        return teacher != null ? ResponseEntity.ok(teacher) : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<Teacher> create(@RequestBody Teacher teacher) {
+        Teacher saved = repo.save(teacher);
+        return ResponseEntity.ok(saved);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Teacher> update(@PathVariable Long id, @RequestBody Teacher updated) {
+        Teacher existing = repo.findById(id);
+        if (existing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        existing.setName(updated.getName());
+        existing.setSubjects(updated.getSubjects());
+        existing.setAvailablePeriods(updated.getAvailablePeriods());
+        Teacher saved = repo.save(existing);
+        return ResponseEntity.ok(saved);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (!repo.existsById(id)) return ResponseEntity.notFound().build();
+        repo.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+}
