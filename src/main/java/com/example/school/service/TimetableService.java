@@ -186,6 +186,19 @@ public class TimetableService {
         return null;
     }
 
+    private Teacher findAvailableTeacher(List<Teacher> teachers, String subject, String periodName,
+                                         Map<String, Integer> teacherPeriodCount, DayOfWeek dayOfWeek) {
+        for (Teacher t : teachers) {
+            if (t.getSubjects().contains(subject) && t.getAvailablePeriods().contains(periodName)) {
+                int count = teacherPeriodCount.getOrDefault(t.getId(), 0);
+                if (dayOfWeek != DayOfWeek.SATURDAY && count >= 3) continue;
+                if (dayOfWeek == DayOfWeek.SATURDAY && count >= 2) continue; // Optional: limit Saturday to 2
+
+                return t;
+            }
+        }
+        return null;
+    }
     private Teacher findAvailableTeacher(List<Teacher> teachers, String subject, String periodName) {
         for (Teacher t : teachers) {
             if (t.getSubjects().contains(subject) && t.getAvailablePeriods().contains(periodName)) {
@@ -195,9 +208,12 @@ public class TimetableService {
         return null;
     }
 
+
     public void handleTeacherAbsence(String teacherName, LocalDate date) {
         List<TimetableEntry> allEntries = repository.findAll();
         List<Teacher> teachers = teacherRepository.findAll();
+
+        Map<String, Integer> teacherPeriodCount = new HashMap<>();
 
         for (TimetableEntry entry : allEntries) {
             if (entry.getTeacher().getName().equalsIgnoreCase(teacherName)
@@ -206,13 +222,26 @@ public class TimetableService {
                 String subject = entry.getSubject().getName();
                 String period = entry.getPeriod().getName();
 
-                Teacher substitute = findAvailableTeacher(teachers, subject, period);
-                entry.setTeacher(substitute != null ? substitute : null);
+                Teacher substitute = findAvailableTeacher(
+                        teachers, subject, period, teacherPeriodCount, entry.getDate().getDayOfWeek());
+
+                if (substitute != null) {
+                    entry.setTeacher(substitute);
+
+                    // Update the substitute's period count
+                    String id = substitute.getId().toString(); // convert Long to String
+                    teacherPeriodCount.put(id, teacherPeriodCount.getOrDefault(id, 0) + 1);
+
+                } else {
+                    entry.setTeacher(null);
+                }
             }
         }
 
         repository.saveAll(allEntries);
     }
+
+
 
     public void handleTeacherAbsence(String teacherName, String day) {
         List<TimetableEntry> allEntries = repository.findAll();
@@ -233,25 +262,14 @@ public class TimetableService {
         repository.saveAll(allEntries);
     }
 
-    public void handleHalfDayTeacherAbsence(String teacherName, LocalDate date, String half) {
+    public void handleTeacherAbsenceForPeriods(String teacherName, LocalDate date, List<String> periodsToReplace) {
         List<TimetableEntry> allEntries = repository.findAll();
         List<Teacher> teachers = teacherRepository.findAll();
-
-        // Define period ranges
-        Set<String> affectedPeriods = new HashSet<>();
-        if (half.equalsIgnoreCase("AM")) {
-            affectedPeriods.addAll(Arrays.asList("P1", "P2", "P3"));
-        } else if (half.equalsIgnoreCase("PM")) {
-            affectedPeriods.addAll(Arrays.asList("P4", "P5", "P6", "P7")); // Adjust for Saturday if needed
-        } else {
-            logger.warn("Invalid half-day specifier: {}", half);
-            return;
-        }
 
         for (TimetableEntry entry : allEntries) {
             if (entry.getTeacher().getName().equalsIgnoreCase(teacherName)
                     && entry.getDate().equals(date)
-                    && affectedPeriods.contains(entry.getPeriod().getName())) {
+                    && periodsToReplace.contains(entry.getPeriod().getName())) {
 
                 String subject = entry.getSubject().getName();
                 String period = entry.getPeriod().getName();
@@ -271,6 +289,7 @@ public class TimetableService {
 
         repository.saveAll(allEntries);
     }
+
 
 
     public void exportToExcel(List<TimetableEntry> entries, LocalDate monday) {
@@ -324,5 +343,5 @@ public class TimetableService {
         }
     }
 
-    
+
 }

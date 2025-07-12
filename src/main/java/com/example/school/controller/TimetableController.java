@@ -7,9 +7,11 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,6 +71,30 @@ public class TimetableController {
                         className.equalsIgnoreCase(e.getClassroom().getName()))
                 .collect(Collectors.toList());
     }
+
+    @GetMapping("/week/teacher/{teacherId}")
+    public List<TimetableEntry> getThisWeekByTeacher(@PathVariable String teacherId) {
+        LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
+        LocalDate saturday = monday.plusDays(5);
+
+        try {
+            Long teacherIdLong = Long.parseLong(teacherId);
+
+            return repo.findAll().stream()
+                    .filter(e -> e.getDate() != null &&
+                            !e.getDate().isBefore(monday) &&
+                            !e.getDate().isAfter(saturday) &&
+                            e.getTeacher() != null &&
+                            teacherIdLong.equals(e.getTeacher().getId()))
+                    .collect(Collectors.toList());
+
+        } catch (NumberFormatException ex) {
+            // Handle case where teacherId is not a number
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid teacher ID: must be numeric");
+        }
+    }
+
+
 
 
     //  NEW: Generate timetable between two dates (excluding Sundays)

@@ -40,15 +40,15 @@ public class TeacherAbsenceController {
     // ✅ Half-day absence
     @PostMapping("/halfday")
     public String markHalfDayAbsent(@RequestBody TeacherHalfDayLeave leave) {
-        String session = leave.getSession().toUpperCase();
-        if (!session.equals("AM") && !session.equals("PM")) {
-            return "❌ Invalid session. Use 'AM' or 'PM'.";
+        List<String> periods = leave.getPeriods();
+        if (periods == null || periods.isEmpty()) {
+            return "❌ Please provide at least one period (e.g., P1, P2, P3)";
         }
 
         halfDayRepo.save(leave);
-        timetableService.handleHalfDayTeacherAbsence(leave.getName(), leave.getDate(), session);
+        timetableService.handleTeacherAbsenceForPeriods(leave.getName(), leave.getDate(), periods);
 
-        return "✅ Marked " + leave.getName() + " absent for " + session + " on " + leave.getDate() + ". Reassigned classes.";
+        return "✅ Marked " + leave.getName() + " absent for periods " + periods + " on " + leave.getDate() + ". Reassigned classes.";
     }
 
     // ✅ All full-day absences
