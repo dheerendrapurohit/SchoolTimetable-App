@@ -8,6 +8,7 @@ public class Teacher implements Serializable {
     private String name;
     private List<String> availablePeriods;
     private List<String> subjects;
+    private List<String> availableClasses;
 
     // Getters and setters
     public Long getId() {
@@ -20,6 +21,14 @@ public class Teacher implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public List<String> getAvailableClasses() {
+        return availableClasses;
+    }
+
+    public void setAvailableClasses(List<String> availableClasses) {
+        this.availableClasses = availableClasses;
     }
 
     public void setName(String name) {

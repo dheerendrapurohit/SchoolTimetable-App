@@ -68,7 +68,7 @@ public class DataLoader {
     }
 
     private void loadSubjects() {
-        List<String> subjects = List.of("English", "Mathematics", "Kannada", "Science", "SocialStudies", "Yoga");
+        List<String> subjects = List.of("English", "Mathematics", "Kannada", "Science", "SocialStudies", "Yoga" ,"Computer", "GK");
         subjects.forEach(name -> {
             Subject s = new Subject();
             s.setName(name);
@@ -108,15 +108,57 @@ public class DataLoader {
 
     private void loadTeachers() {
         String[][] teacherSubjects = {
-                {"English"}, {"Mathematics"}, {"Science"}, {"Mathematics", "Science"},
-                {"Kannada"}, {"Kannada", "SocialStudies"}, {"SocialStudies"}, {"Yoga"},
-                {"English"}, {"Mathematics"}, {"Science"}, {"Mathematics", "Science"},
-                {"Kannada"}, {"Kannada", "SocialStudies"}, {"SocialStudies"}, {"English"},
-                {"Mathematics"}, {"Science"}, {"Mathematics", "Science"}, {"Kannada"},
-                {"Kannada", "SocialStudies"}, {"SocialStudies"}, {"English"}, {"Mathematics"},
-                {"Science"}, {"Mathematics", "Science"}, {"Kannada"}, {"Kannada", "SocialStudies"},
-                {"SocialStudies"}, {"Mathematics"}
+                // English (5 teachers)
+                { "English" }, { "English" }, { "English", "SocialStudies" }, { "English", "GK" }, { "English", "Kannada" },
+
+                // Mathematics (5 teachers)
+                { "Mathematics" }, { "Mathematics" }, { "Mathematics", "Science" }, { "Mathematics", "Computer" }, { "Mathematics", "GK" },
+
+                // Science (4 teachers)
+                { "Science" }, { "Science", "Mathematics" }, { "Science", "GK" }, { "Science", "Computer" },
+
+                // Kannada (4 teachers)
+                { "Kannada" }, { "Kannada", "SocialStudies" }, { "Kannada", "GK" }, { "Kannada", "English" },
+
+                // Social Studies (4 teachers)
+                { "SocialStudies" }, { "SocialStudies", "GK" }, { "SocialStudies", "Kannada" }, { "SocialStudies", "English" },
+
+                // Computer (3 teachers)
+                { "Computer" }, { "Computer", "Mathematics" }, { "Computer", "GK" },
+
+                // GK (3 teachers)
+                { "GK" }, { "GK", "English" }, { "GK", "Science" },
+
+                // Yoga (1 teacher only)
+                { "Yoga" }
         };
+
+
+        List<String> lowerClasses = List.of("PKG", "LKG", "UKG", "1");
+        List<String> higherClasses = List.of("2", "3", "4", "5");
+
+        Map<String, List<Integer>> subjectToTeacherIndices = new HashMap<>();
+        for (int i = 0; i < teacherSubjects.length; i++) {
+            for (String subject : teacherSubjects[i]) {
+                subjectToTeacherIndices.computeIfAbsent(subject, s -> new ArrayList<>()).add(i);
+            }
+        }
+
+        Map<Integer, Set<String>> teacherAvailableClassesMap = new HashMap<>();
+
+        for (Map.Entry<String, List<Integer>> entry : subjectToTeacherIndices.entrySet()) {
+            List<Integer> indices = entry.getValue();
+            int mid = (int) Math.ceil(indices.size() / 2.0);
+
+            for (int j = 0; j < indices.size(); j++) {
+                int teacherIndex = indices.get(j);
+                List<String> assigned = (j < mid) ? lowerClasses : higherClasses;
+
+                teacherAvailableClassesMap
+                        .computeIfAbsent(teacherIndex, k -> new HashSet<>())
+                        .addAll(assigned);
+            }
+        }
 
         IntStream.range(0, teacherSubjects.length).forEach(i -> {
             Teacher t = new Teacher();
@@ -124,13 +166,27 @@ public class DataLoader {
 
             List<String> periods = (i % 2 == 0)
                     ? List.of("P1", "P2", "P3", "P4")
-                    : List.of("P1","P4", "P5", "P6", "P7");
+                    : List.of("P1", "P4", "P5", "P6", "P7");
             t.setAvailablePeriods(periods);
-            t.setSubjects(Arrays.asList(teacherSubjects[i]));
+
+            List<String> subjects = Arrays.asList(teacherSubjects[i]);
+            t.setSubjects(subjects);
+
+            if (subjects.contains("Yoga")) {
+                t.setAvailableClasses(List.of("PKG", "LKG", "UKG", "1", "2", "3", "4", "5"));
+            } else {
+                List<String> availableClasses = new ArrayList<>(teacherAvailableClassesMap.getOrDefault(i, new HashSet<>()));
+                t.setAvailableClasses(availableClasses);
+            }
+
             teacherRepository.save(t);
         });
-        logger.debug("Teachers loaded: 30");
+
+
+        logger.debug("Teachers loaded: {}", teacherSubjects.length);
+
     }
+
 
     private void loadSampleTimetableEntries() {
         timetableEntryRepository.clear();
@@ -141,17 +197,65 @@ public class DataLoader {
         List<Classroom> classrooms = classroomRepository.findAll();
         List<Period> periods = periodRepository.findAll();
 
-        Map<String, Boolean> yogaAssigned = new HashMap<>(); // track Yoga per class
         Random random = new Random();
         LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
 
-        for (Classroom classroom : classrooms) {
-            yogaAssigned.put(classroom.getName(), false);
+        Subject yogaSubject = subjects.stream()
+                .filter(s -> s.getName().equalsIgnoreCase("Yoga"))
+                .findFirst()
+                .orElse(null);
 
+        Map<String, LocalDate> yogaDatePerClass = new HashMap<>();
+        Map<String, String> yogaPeriodPerClass = new HashMap<>();
+        Set<String> yogaSlotUsed = new HashSet<>();
+
+        for (Classroom classroom : classrooms) {
+            boolean yogaAssigned = false;
+
+            outer:
             for (int i = 0; i < 6; i++) {
                 LocalDate date = monday.plusDays(i);
                 DayOfWeek day = date.getDayOfWeek();
                 boolean isSaturday = day == DayOfWeek.SATURDAY;
+
+                List<Period> todaysPeriods = isSaturday
+                        ? periods.stream().filter(p -> !p.getName().equals("P1")).limit(4).toList()
+                        : periods.stream().filter(p -> !p.getName().equals("P1")).toList();
+
+                List<String> shuffledPeriods = todaysPeriods.stream().map(Period::getName).collect(Collectors.toList());
+                Collections.shuffle(shuffledPeriods);
+
+                for (String periodName : shuffledPeriods) {
+                    String yogaSlotKey = date + "_" + periodName;
+
+                    boolean teacherAvailable = teachers.stream()
+                            .anyMatch(t ->
+                                    t.getSubjects().contains("Yoga")
+                                            && t.getAvailablePeriods().contains(periodName)
+                                            && t.getAvailableClasses().contains(classroom.getName())
+                            );
+
+                    if (teacherAvailable && !yogaSlotUsed.contains(yogaSlotKey)) {
+                        yogaDatePerClass.put(classroom.getName(), date);
+                        yogaPeriodPerClass.put(classroom.getName(), periodName);
+                        yogaSlotUsed.add(yogaSlotKey);
+                        yogaAssigned = true;
+                        break outer;
+                    }
+                }
+            }
+
+            if (!yogaAssigned) {
+                logger.warn("Could not assign Yoga to class {} due to teacher or slot unavailability", classroom.getName());
+            }
+        }
+
+        for (Classroom classroom : classrooms) {
+            for (int i = 0; i < 6; i++) {
+                LocalDate date = monday.plusDays(i);
+                DayOfWeek day = date.getDayOfWeek();
+                boolean isSaturday = day == DayOfWeek.SATURDAY;
+
                 List<Period> todaysPeriods = isSaturday
                         ? periods.stream().filter(p -> p.getName().matches("P[1-4]")).toList()
                         : periods;
@@ -162,55 +266,55 @@ public class DataLoader {
                 for (Period period : todaysPeriods) {
                     Subject subject = null;
 
-                    // Try assigning Yoga if not already assigned for this class
-                    if (!yogaAssigned.get(classroom.getName())
-                            && !uniqueSubjectsUsed.contains("Yoga")
-                            && subjectUsageCount.getOrDefault("Yoga", 0) == 0
-                            && uniqueSubjectsUsed.size() < 3) {
 
-                        subject = subjects.stream()
-                                .filter(s -> s.getName().equalsIgnoreCase("Yoga"))
-                                .findFirst().orElse(null);
+                    if (date.equals(yogaDatePerClass.get(classroom.getName())) &&
+                            period.getName().equals(yogaPeriodPerClass.get(classroom.getName())) &&
+                            yogaSubject != null) {
 
-                        if (subject != null) {
-                            yogaAssigned.put(classroom.getName(), true);
-                            uniqueSubjectsUsed.add("Yoga");
-                            subjectUsageCount.put("Yoga", 1);
-                        }
+                        subject = yogaSubject;
+                        uniqueSubjectsUsed.add("Yoga");
+                        subjectUsageCount.put("Yoga", 1);
                     }
 
-                    // If Yoga not assigned or skipped, pick a subject under limits
+
                     if (subject == null) {
                         List<Subject> availableSubjects = subjects.stream()
-                                .filter(s -> {
-                                    int count = subjectUsageCount.getOrDefault(s.getName(), 0);
-                                    return count < 3;
-                                })
-                                .filter(s -> {
-                                    if (uniqueSubjectsUsed.size() < 3) return true;
-                                    return uniqueSubjectsUsed.contains(s.getName());
-                                })
-                                .filter(s -> !s.getName().equalsIgnoreCase("Yoga")
-                                        || (!yogaAssigned.get(classroom.getName())
-                                        && !uniqueSubjectsUsed.contains("Yoga")
-                                        && subjectUsageCount.getOrDefault("Yoga", 0) == 0))
+                                .filter(s -> subjectUsageCount.getOrDefault(s.getName(), 0) < 2)
+                                .filter(s -> uniqueSubjectsUsed.size() < 6 || uniqueSubjectsUsed.contains(s.getName()))
+                                .filter(s -> !s.getName().equalsIgnoreCase("Yoga"))
                                 .toList();
 
-                        if (availableSubjects.isEmpty()) continue;
+                        if (availableSubjects.isEmpty()) {
+                            logger.warn("No available subjects for {} {} {}", classroom.getName(), date, period.getName());
+                            continue;
+                        }
 
                         subject = availableSubjects.get(random.nextInt(availableSubjects.size()));
                         subjectUsageCount.put(subject.getName(), subjectUsageCount.getOrDefault(subject.getName(), 0) + 1);
                         uniqueSubjectsUsed.add(subject.getName());
                     }
 
-                    // Get applicable teachers
+                    // Assign teacher for subject
                     Subject finalSubject = subject;
                     List<Teacher> applicableTeachers = teachers.stream()
                             .filter(t -> t.getSubjects().contains(finalSubject.getName()))
                             .filter(t -> t.getAvailablePeriods().contains(period.getName()))
+                            .filter(t -> t.getAvailableClasses().contains(classroom.getName()))
                             .toList();
 
-                    if (applicableTeachers.isEmpty()) continue;
+                    if (applicableTeachers.isEmpty()) {
+                        applicableTeachers = teachers.stream()
+                                .filter(t -> t.getSubjects().contains(finalSubject.getName()))
+                                .filter(t -> t.getAvailablePeriods().contains(period.getName()))
+                                .toList();
+
+                        if (!applicableTeachers.isEmpty()) {
+                            logger.warn("Used fallback teacher for {} {} {} {}", classroom.getName(), date, period.getName(), subject.getName());
+                        } else {
+                            logger.warn("No teacher found for {} {} {} {}", classroom.getName(), date, period.getName(), subject.getName());
+                            continue;
+                        }
+                    }
 
                     Teacher teacher = applicableTeachers.get(random.nextInt(applicableTeachers.size()));
 
@@ -227,15 +331,6 @@ public class DataLoader {
             }
         }
 
-        logger.info("Strict, fully-populated sample timetable loaded.");
-    }
-
-
-
-
-
-
-    private boolean isTeacherAvailableForPeriod(Teacher teacher, Period period) {
-        return teacher.getAvailablePeriods().contains(period.getName());
+        logger.info("Yoga-aware, conflict-free timetable loaded.");
     }
 }

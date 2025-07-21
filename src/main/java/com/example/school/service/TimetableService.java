@@ -191,7 +191,7 @@ public class TimetableService {
         for (Teacher t : teachers) {
             if (t.getSubjects().contains(subject) && t.getAvailablePeriods().contains(periodName)) {
                 int count = teacherPeriodCount.getOrDefault(t.getId(), 0);
-                if (dayOfWeek != DayOfWeek.SATURDAY && count >= 3) continue;
+                if (dayOfWeek != DayOfWeek.SATURDAY && count >= 4) continue;
                 if (dayOfWeek == DayOfWeek.SATURDAY && count >= 2) continue; // Optional: limit Saturday to 2
 
                 return t;

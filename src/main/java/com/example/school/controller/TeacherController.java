@@ -34,6 +34,7 @@ public class TeacherController {
 
     @PostMapping
     public ResponseEntity<Teacher> create(@RequestBody Teacher teacher) {
+        // ✅ Make sure availableClasses is handled from request
         Teacher saved = repo.save(teacher);
         return ResponseEntity.ok(saved);
     }
@@ -44,9 +45,12 @@ public class TeacherController {
         if (existing == null) {
             return ResponseEntity.notFound().build();
         }
+
         existing.setName(updated.getName());
         existing.setSubjects(updated.getSubjects());
         existing.setAvailablePeriods(updated.getAvailablePeriods());
+        existing.setAvailableClasses(updated.getAvailableClasses());
+
         Teacher saved = repo.save(existing);
         return ResponseEntity.ok(saved);
     }
@@ -57,7 +61,4 @@ public class TeacherController {
         repo.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
 }
