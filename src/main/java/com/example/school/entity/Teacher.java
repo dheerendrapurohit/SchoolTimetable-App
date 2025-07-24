@@ -2,6 +2,7 @@ package com.example.school.entity;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class Teacher implements Serializable {
     private Long id;
@@ -9,10 +10,19 @@ public class Teacher implements Serializable {
     private List<String> availablePeriods;
     private List<String> subjects;
     private List<String> availableClasses;
+    private Map<String, List<String>> subjectClassMap;
 
     // Getters and setters
     public Long getId() {
         return id;
+    }
+
+    public Map<String, List<String>> getSubjectClassMap() {
+        return subjectClassMap;
+    }
+
+    public void setSubjectClassMap(Map<String, List<String>> subjectClassMap) {
+        this.subjectClassMap = subjectClassMap;
     }
 
     public void setId(Long id) {

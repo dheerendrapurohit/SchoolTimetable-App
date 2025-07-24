@@ -12,10 +12,5 @@ public class SubjectJsonRepository extends JsonRepository<Subject> {
         super("subjects.json", Subject.class);
     }
 
-    public Subject findByName(String name) {
-        return findAll().stream()
-                .filter(subject -> subject.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
-    }
+
 }

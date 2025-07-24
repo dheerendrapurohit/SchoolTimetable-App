@@ -1,7 +1,6 @@
 package com.example.school.controller;
 
 import com.example.school.entity.Period;
-import com.example.school.repository.json.PeriodJsonRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
