@@ -37,7 +37,7 @@ public class TimetableController {
         this.timetableService = timetableService;
     }
 
-    //  Return entries for the current week (Monday to Sunday)
+    
     @GetMapping
     public List<TimetableEntry> getThisWeek() {
         LocalDate today = LocalDate.now();
