@@ -4,6 +4,7 @@ import com.example.school.entity.TimetableEntry;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface TimetableService {
 
@@ -22,4 +23,7 @@ public interface TimetableService {
     void handleTeacherAbsenceForPeriods(String teacherName, LocalDate date, List<String> periodsToReplace);
 
     void exportToExcel(List<TimetableEntry> entries, LocalDate baseDate);
+
+    Map<String, Map<String, Long>> getWeeklySubjectCountPerClass(LocalDate weekStartDate);
+
 }

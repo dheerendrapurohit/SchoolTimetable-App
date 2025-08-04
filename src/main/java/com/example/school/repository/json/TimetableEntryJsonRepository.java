@@ -48,4 +48,5 @@ public class TimetableEntryJsonRepository extends JsonRepository<TimetableEntry>
                         date.equals(entry.getDate()))
                 .collect(Collectors.toList());
     }
+
 }

@@ -34,7 +34,7 @@ public class TeacherController {
 
     @PostMapping
     public ResponseEntity<Teacher> create(@RequestBody Teacher teacher) {
-        // ✅ Make sure availableClasses is handled from request
+        // ✅ Uses new structure with subjectsAndClasses
         Teacher saved = repo.save(teacher);
         return ResponseEntity.ok(saved);
     }
@@ -47,9 +47,8 @@ public class TeacherController {
         }
 
         existing.setName(updated.getName());
-        existing.setSubjects(updated.getSubjects());
         existing.setAvailablePeriods(updated.getAvailablePeriods());
-        existing.setAvailableClasses(updated.getAvailableClasses());
+        existing.setSubjectsAndClasses(updated.getSubjectsAndClasses()); // ✅ Updated field
 
         Teacher saved = repo.save(existing);
         return ResponseEntity.ok(saved);
@@ -61,4 +60,6 @@ public class TeacherController {
         repo.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }

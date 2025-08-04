@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -186,5 +187,44 @@ public class TimetableController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(resource);
     }
+
+    // New endpoint: Get subject count per class for this week
+    @GetMapping("/week/subject-count")
+    public Map<String, Map<String, Long>> getSubjectCountPerClassThisWeek() {
+        LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
+        LocalDate saturday = monday.plusDays(5); // Monday to Saturday
+
+        return repo.findAll().stream()
+                .filter(e -> e.getDate() != null &&
+                        !e.getDate().isBefore(monday) &&
+                        !e.getDate().isAfter(saturday))
+                .collect(Collectors.groupingBy(
+                        e -> e.getClassroom().getName(), // group by class
+                        Collectors.groupingBy(
+                                e -> e.getSubject().getName(), // group by subject
+                                Collectors.counting() // count occurrences
+                        )
+                ));
+    }
+
+    @GetMapping("/subject-count")
+    public Map<String, Long> getSubjectCountForClassThisWeek(@RequestParam String className) {
+        LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
+        LocalDate saturday = monday.plusDays(5);
+
+        return repo.findAll().stream()
+                .filter(e -> e.getDate() != null &&
+                        !e.getDate().isBefore(monday) &&
+                        !e.getDate().isAfter(saturday) &&
+                        e.getClassroom() != null &&
+                        className.equalsIgnoreCase(e.getClassroom().getName()))
+                .collect(Collectors.groupingBy(
+                        e -> e.getSubject().getName(),
+                        Collectors.counting()
+                ));
+    }
+
+
+
 
 }

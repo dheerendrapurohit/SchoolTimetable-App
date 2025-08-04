@@ -7,10 +7,19 @@ public class Period implements Serializable {
     private String name;
     private int duration;
     private String session;
+    private int order;
 
     // Getters and setters
     public Long getId() {
         return id;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     public void setId(Long id) {

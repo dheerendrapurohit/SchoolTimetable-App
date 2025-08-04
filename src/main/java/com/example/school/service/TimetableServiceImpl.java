@@ -2,13 +2,11 @@ package com.example.school.service;
 
 import com.example.school.entity.*;
 import com.example.school.repository.json.*;
-import com.example.school.service.TimetableService;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,13 +27,19 @@ public class TimetableServiceImpl implements TimetableService {
     private final ClassroomJsonRepository classroomRepository;
     private final PeriodJsonRepository periodRepository;
 
-    private static final int MAX_UNIQUE_SUBJECTS_PER_DAY = 4;
-    private static final int MAX_SUBJECT_OCCURRENCE_PER_DAY = 5;
-    private static final int MAX_TEACHER_PERIODS_WEEKDAY = 4;
+
+    private static final int MAX_TEACHER_PERIODS_WEEKDAY = 6;
     private static final int MAX_TEACHER_PERIODS_SATURDAY = 2;
-    private static final Set<String> OPTIONAL_SUBJECTS = Set.of("Yoga");
-    private static final int MAX_PERIODS_MON_FRI = 6;
+
+    private static final int MAX_PERIODS_MON_FRI = 7;
     private static final int MAX_PERIODS_SAT = 4;
+
+    private static final int MAX_WEEKLY_YOGA = 1;
+    private static final int MAX_WEEKLY_CORE = 22;
+    private static final int MAX_WEEKLY_LANG_SKILLS = 16;
+
+    private final Map<String, Map<String, Integer>> weeklySubjectGroupCountPerClass = new HashMap<>();
+    private final Map<String, Integer> yogaAssignedPerClass = new HashMap<>();
 
     public TimetableServiceImpl(TimetableEntryJsonRepository timetableEntryRepository,
                                 TeacherJsonRepository teacherRepository,
@@ -52,87 +56,117 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public void generateTimetableForSingleDay(LocalDate date) {
         List<Classroom> classrooms = classroomRepository.findAll();
-        List<Period> periods = periodRepository.findAll();
+        List<Period> allPeriods = periodRepository.findAll();
         List<Teacher> teachers = teacherRepository.findAll();
         List<Subject> subjects = subjectRepository.findAll();
 
         DayOfWeek day = date.getDayOfWeek();
-        boolean isSaturday = day == DayOfWeek.SATURDAY;
+        boolean isSaturday = (day == DayOfWeek.SATURDAY);
         int maxTeacherPeriods = isSaturday ? MAX_TEACHER_PERIODS_SATURDAY : MAX_TEACHER_PERIODS_WEEKDAY;
-        int maxPeriodsPerDay = isSaturday ? MAX_PERIODS_SAT : MAX_PERIODS_MON_FRI;
+        int maxPeriodsToday = isSaturday ? MAX_PERIODS_SAT : MAX_PERIODS_MON_FRI;
 
-        List<Period> todaysPeriods = periods.stream()
-                .sorted(Comparator.comparing(Period::getName))
-                .limit(maxPeriodsPerDay)
-                .toList();
+        List<Period> todaysPeriods = allPeriods.stream()
+                .sorted(Comparator.comparing(p -> Integer.parseInt(p.getName().replaceAll("[^\\d]", ""))))
+                .limit(maxPeriodsToday)
+                .collect(Collectors.toList());
 
         Map<Long, Integer> teacherPeriodCount = new HashMap<>();
-        Map<String, Set<String>> optionalAssignedPerClass = new HashMap<>();
+
+        Set<String> optionalSubjects = Set.of("Yoga");
+        Set<String> coreSubjects = Set.of("Mathematics", "Science", "SocialStudies", "Computer");
+        Set<String> langSkillSubjects = Set.of("English", "Kannada", "GK");
 
         for (Classroom classroom : classrooms) {
-            Set<String> uniqueSubjects = new HashSet<>();
-            Map<String, Integer> subjectUsage = new HashMap<>();
-            int optionalAssigned = 0;
+            String className = classroom.getName();
+
+
+            Map<String, Integer> groupCount = weeklySubjectGroupCountPerClass
+                    .computeIfAbsent(className, k -> new HashMap<>());
+
+
+            int optionalUsed = yogaAssignedPerClass.getOrDefault(className, 0);
+            int coreUsed = groupCount.getOrDefault("core", 0);
+            int langUsed = groupCount.getOrDefault("lang", 0);
+
+            
+            Map<String, Integer> subjectDailyUsage = new HashMap<>();
 
             for (Period period : todaysPeriods) {
                 Subject selectedSubject = null;
+
                 List<Subject> shuffledSubjects = new ArrayList<>(subjects);
                 Collections.shuffle(shuffledSubjects);
 
-                for (Subject s : shuffledSubjects) {
-                    if (OPTIONAL_SUBJECTS.contains(s.getName())) {
-                        if (optionalAssignedPerClass.getOrDefault(classroom.getName(), new HashSet<>()).contains(s.getName())) continue;
-                        optionalAssigned++;
-                    } else {
-                        if (uniqueSubjects.size() >= MAX_UNIQUE_SUBJECTS_PER_DAY && !uniqueSubjects.contains(s.getName())) continue;
-                        if (subjectUsage.getOrDefault(s.getName(), 0) >= MAX_SUBJECT_OCCURRENCE_PER_DAY) continue;
+                for (Subject subject : shuffledSubjects) {
+                    String name = subject.getName();
+                    int dailyUsed = subjectDailyUsage.getOrDefault(name, 0);
+
+                    if (optionalSubjects.contains(name)) {
+                        if (optionalUsed >= MAX_WEEKLY_YOGA || dailyUsed >= 1) continue;
+                        selectedSubject = subject;
+                        optionalUsed++;
+                        yogaAssignedPerClass.put(className, optionalUsed);
+                    } else if (coreSubjects.contains(name)) {
+                        if (coreUsed >= MAX_WEEKLY_CORE || dailyUsed >= 2) continue;
+                        selectedSubject = subject;
+                        coreUsed++;
+                        groupCount.put("core", coreUsed);
+                    } else if (langSkillSubjects.contains(name)) {
+                        if (langUsed >= MAX_WEEKLY_LANG_SKILLS || dailyUsed >= 1) continue;
+                        selectedSubject = subject;
+                        langUsed++;
+                        groupCount.put("lang", langUsed);
                     }
-                    selectedSubject = s;
-                    break;
+
+                    if (selectedSubject != null) {
+                        subjectDailyUsage.put(name, dailyUsed + 1);
+                        break;
+                    }
                 }
 
                 if (selectedSubject == null) {
-                    logger.warn("No subject available for {} {}", classroom.getName(), period.getName());
+                    logger.warn("❗ No suitable subject for {} on {} {}", className, date, period.getName());
                     continue;
                 }
 
                 final Subject finalSubject = selectedSubject;
+
                 List<Teacher> availableTeachers = teachers.stream()
-                        .filter(t -> t.getSubjects().contains(finalSubject.getName()))
-                        .filter(t -> t.getAvailableClasses().contains(classroom.getName()))
                         .filter(t -> t.getAvailablePeriods().contains(period.getName()))
+                        .filter(t -> t.getSubjectsAndClasses().stream()
+                                .anyMatch(pair -> pair.getSubject().equals(finalSubject.getName()) &&
+                                        pair.getClasses().equals(className)))
                         .filter(t -> teacherPeriodCount.getOrDefault(t.getId(), 0) < maxTeacherPeriods)
                         .collect(Collectors.toList());
 
                 if (availableTeachers.isEmpty()) {
-                    logger.warn("No teacher available for {} {} {}", classroom.getName(), period.getName(), finalSubject.getName());
+                    logger.warn("❗ No teacher found for {} - {} - {}", className, finalSubject.getName(), period.getName());
                     continue;
                 }
 
-                Teacher teacher = availableTeachers.get(new Random().nextInt(availableTeachers.size()));
-
-                teacherPeriodCount.put(teacher.getId(), teacherPeriodCount.getOrDefault(teacher.getId(), 0) + 1);
-                uniqueSubjects.add(selectedSubject.getName());
-                subjectUsage.put(selectedSubject.getName(), subjectUsage.getOrDefault(selectedSubject.getName(), 0) + 1);
-                if (OPTIONAL_SUBJECTS.contains(selectedSubject.getName())) {
-                    optionalAssignedPerClass.computeIfAbsent(classroom.getName(), k -> new HashSet<>()).add(selectedSubject.getName());
-                }
+                Collections.shuffle(availableTeachers);
+                Teacher assignedTeacher = availableTeachers.get(0);
+                teacherPeriodCount.put(assignedTeacher.getId(), teacherPeriodCount.getOrDefault(assignedTeacher.getId(), 0) + 1);
 
                 TimetableEntry entry = new TimetableEntry();
                 entry.setDate(date);
                 entry.setDay(day.toString());
                 entry.setClassroom(classroom);
                 entry.setPeriod(period);
-                entry.setSubject(selectedSubject);
-                entry.setTeacher(teacher);
+                entry.setSubject(finalSubject);
+                entry.setTeacher(assignedTeacher);
 
                 timetableEntryRepository.save(entry);
             }
         }
 
         timetableEntryRepository.saveToFile();
-        logger.info("Timetable generated for {}", date);
+        logger.info("✅ Timetable generated for {}", date);
     }
+
+
+
+
 
     @Override
     public List<TimetableEntry> getAllEntries() {
@@ -148,12 +182,22 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public void generateTimetableForWeek() {
+        // Step 1: Clear existing entries
+        timetableEntryRepository.clear();
+        timetableEntryRepository.saveToFile();
+
+        // Step 2: Clear counters
+        weeklySubjectGroupCountPerClass.clear();
+        yogaAssignedPerClass.clear();
+
+        // Step 3: Generate each day in order
         LocalDate today = LocalDate.now();
-        LocalDate monday = today.minusDays(today.getDayOfWeek().getValue() - 1);
+        LocalDate monday = today.with(DayOfWeek.MONDAY);
         for (int i = 0; i < 6; i++) {
             generateTimetableForSingleDay(monday.plusDays(i));
         }
     }
+
 
     @Override
     public void generateTimetableBetweenDates(LocalDate startDate, LocalDate endDate) {
@@ -176,10 +220,12 @@ public class TimetableServiceImpl implements TimetableService {
                 // Find replacement
                 Optional<Teacher> replacement = teachers.stream()
                         .filter(t -> !t.getName().equalsIgnoreCase(teacherName))
-                        .filter(t -> t.getSubjects().contains(subject.getName()))
-                        .filter(t -> t.getAvailableClasses().contains(classroom))
                         .filter(t -> t.getAvailablePeriods().contains(period))
+                        .filter(t -> t.getSubjectsAndClasses().stream()
+                                .anyMatch(pair -> pair.getSubject().equals(subject.getName()) &&
+                                        pair.getClasses().equals(classroom)))
                         .findAny();
+
 
                 replacement.ifPresent(entry::setTeacher);
             }
@@ -205,9 +251,10 @@ public class TimetableServiceImpl implements TimetableService {
                 // Find replacement
                 Optional<Teacher> replacement = teachers.stream()
                         .filter(t -> !t.getName().equalsIgnoreCase(teacherName))
-                        .filter(t -> t.getSubjects().contains(subject.getName()))
-                        .filter(t -> t.getAvailableClasses().contains(classroom))
                         .filter(t -> t.getAvailablePeriods().contains(period))
+                        .filter(t -> t.getSubjectsAndClasses().stream()
+                                .anyMatch(pair -> pair.getSubject().equals(subject.getName()) &&
+                                        pair.getClasses().equals(classroom)))
                         .findAny();
 
                 replacement.ifPresent(entry::setTeacher);
@@ -245,8 +292,33 @@ public class TimetableServiceImpl implements TimetableService {
             workbook.write(fileOut);
             workbook.close();
         } catch (IOException e) {
-            logger.error("Failed to export timetable to Excel", e);
+            logger.error(" ❌ Failed to export timetable to Excel", e);
         }
+    }
+
+
+
+    public Map<String, Map<String, Long>> getWeeklySubjectCountPerClass(LocalDate weekStartDate) {
+        LocalDate monday = weekStartDate.with(DayOfWeek.MONDAY);
+        LocalDate saturday = monday.plusDays(5);
+
+        List<TimetableEntry> weeklyEntries = timetableEntryRepository.findAll().stream()
+                .filter(entry -> !entry.getDate().isBefore(monday) && !entry.getDate().isAfter(saturday))
+                .collect(Collectors.toList());
+
+        // Outer map: className -> (subjectName -> count)
+        Map<String, Map<String, Long>> subjectCountMap = new HashMap<>();
+
+        for (TimetableEntry entry : weeklyEntries) {
+            String className = entry.getClassroom().getName();
+            String subjectName = entry.getSubject().getName();
+
+            subjectCountMap
+                    .computeIfAbsent(className, k -> new HashMap<>())
+                    .merge(subjectName, 1L, Long::sum);
+        }
+
+        return subjectCountMap;
     }
 
 }

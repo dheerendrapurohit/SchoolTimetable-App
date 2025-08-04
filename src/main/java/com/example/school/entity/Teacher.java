@@ -2,27 +2,24 @@ package com.example.school.entity;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 public class Teacher implements Serializable {
     private Long id;
     private String name;
     private List<String> availablePeriods;
-    private List<String> subjects;
-    private List<String> availableClasses;
-    private Map<String, List<String>> subjectClassMap;
+    private List<SubjectClassPair> subjectsAndClasses;
 
-    // Getters and setters
+    public Teacher() {}
+
+    public Teacher(Long id, String name, List<String> availablePeriods, List<SubjectClassPair> subjectsAndClasses) {
+        this.id = id;
+        this.name = name;
+        this.availablePeriods = availablePeriods;
+        this.subjectsAndClasses = subjectsAndClasses;
+    }
+
     public Long getId() {
         return id;
-    }
-
-    public Map<String, List<String>> getSubjectClassMap() {
-        return subjectClassMap;
-    }
-
-    public void setSubjectClassMap(Map<String, List<String>> subjectClassMap) {
-        this.subjectClassMap = subjectClassMap;
     }
 
     public void setId(Long id) {
@@ -31,14 +28,6 @@ public class Teacher implements Serializable {
 
     public String getName() {
         return name;
-    }
-
-    public List<String> getAvailableClasses() {
-        return availableClasses;
-    }
-
-    public void setAvailableClasses(List<String> availableClasses) {
-        this.availableClasses = availableClasses;
     }
 
     public void setName(String name) {
@@ -53,11 +42,11 @@ public class Teacher implements Serializable {
         this.availablePeriods = availablePeriods;
     }
 
-    public List<String> getSubjects() {
-        return subjects;
+    public List<SubjectClassPair> getSubjectsAndClasses() {
+        return subjectsAndClasses;
     }
 
-    public void setSubjects(List<String> subjects) {
-        this.subjects = subjects;
+    public void setSubjectsAndClasses(List<SubjectClassPair> subjectsAndClasses) {
+        this.subjectsAndClasses = subjectsAndClasses;
     }
 }
