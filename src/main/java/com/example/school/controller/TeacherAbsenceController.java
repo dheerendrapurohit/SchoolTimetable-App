@@ -42,7 +42,7 @@ public class TeacherAbsenceController {
     public String markHalfDayAbsent(@RequestBody TeacherHalfDayLeave leave) {
         List<String> periods = leave.getPeriods();
         if (periods == null || periods.isEmpty()) {
-            return "❌ Please provide at least one period (e.g., P1, P2, P3)";
+            return "❌ Please provide at least one period ";
         }
 
         halfDayRepo.save(leave);
